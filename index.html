@@ -79,13 +79,13 @@
       var inputText = document.getElementById("inputText").value;
       var encryptedText = encryptText(inputText);
 
-      fetch('/send_message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 'message': encryptedText })
-      })
+fetch('https://encrypt-chat-git-main-001developer.vercel.app//send_message', {  // 将 'your-server-url' 替换为服务器的实际 URL
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ 'message': encryptedText })
+})
         .then(response => {
           if (response.ok) {
             console.log('消息已发送到服务器');
