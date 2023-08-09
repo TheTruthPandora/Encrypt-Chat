@@ -1,43 +1,37 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
-from Crypto.Cipher import AES
-from base64 import b64encode, b64decode
 
 app = Flask(__name__)
-CORS(app)  # 添加CORS中间件
-encryption_key = b'05cbb41656c51dcd7df6b8bb6307bfda'  # 替换为您的加密密钥
-cipher = AES.new(encryption_key, AES.MODE_ECB)
 
+encryption_key = "05cbb41656c51dcd7df6b8bb6307bfda"
 messages = []
 
-@app.route('/api/send_message', methods=['POST'])
+@app.route('/api/send-message', methods=['POST'])
 def send_message():
-    data = request.get_json()
-    encrypted_text = encrypt_text(data['message'])
+    input_text = request.form['text']
+    encrypted_text = encrypt_text(input_text, encryption_key)
+
+    # 模拟发送消息到服务器
+    simulate_server_send(encrypted_text)
+
+    return jsonify({'status': 'success'})
+
+@app.route('/api/receive-message', methods=['POST'])
+def receive_message():
+    encrypted_text = request.form['text']
+    decrypted_text = decrypt_text(encrypted_text, encryption_key)
+
+    return jsonify({'decrypted_text': decrypted_text})
+
+def simulate_server_send(encrypted_text):
     messages.append(encrypted_text)
-    return jsonify({'success': True})
 
-@app.route('/api/get_messages', methods=['GET'])
-def get_messages():
-    decrypted_messages = [decrypt_text(msg) for msg in messages]
-    return jsonify({'messages': decrypted_messages})
+    # 这里可以将消息发送给另一方，例如通过WebSocket或HTTP请求
 
-def pad_text(text):
-    while len(text) % 16 != 0:
-        text += ' '
-    return text
+def encrypt_text(text, key):
+    # 实现加密逻辑，可以使用您选择的加密算法
 
-def encrypt_text(text):
-    padded_text = pad_text(text)
-    encrypted_bytes = cipher.encrypt(padded_text.encode())
-    encrypted_text = b64encode(encrypted_bytes).decode()
-    return encrypted_text
-
-def decrypt_text(encrypted_text):
-    encrypted_bytes = b64decode(encrypted_text)
-    decrypted_bytes = cipher.decrypt(encrypted_bytes)
-    decrypted_text = decrypted_bytes.decode().rstrip()
-    return decrypted_text
+def decrypt_text(encrypted_text, key):
+    # 实现解密逻辑，可以使用您选择的解密算法
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000)
+    app.run()
