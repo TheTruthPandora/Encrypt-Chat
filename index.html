@@ -60,93 +60,77 @@
   <script>
     var encryptionKey = "your_encryption_key";  // 替换为您的加密密钥
 
-    function sendMessage() {
-      var inputText = document.getElementById("inputText").value;
-      var encryptedText = encryptText(inputText);
-
-      function sendMessage() {
-  var inputText = document.getElementById("inputText").value;
-  var encryptedText = encryptText(inputText);
-
- function sendMessage() {
-  var inputText = document.getElementById("inputText").value;
-  var encryptedText = encryptText(inputText);
-
-  fetch('/send_message', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ 'message': encryptedText })
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('消息已发送到服务器');
-      }
-    })
-    .catch(error => {
-      console.error('发送消息时出错:', error);
-    });
-
-  clearInput();
-}
-
-function decryptMessages() {
-  fetch('/get_messages')
-    .then(response => response.json())
-    .then(data => {
-      var messages = data.messages;
-      var decryptedMessages = messages.map(decryptText);
-      var chatbox = document.getElementById("chatbox");
-      chatbox.innerHTML = "";
-
-      for (var i = 0; i < decryptedMessages.length; i++) {
-        var message = decryptedMessages[i];
-        var messageElement = document.createElement("p");
-        messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
-        chatbox.appendChild(messageElement);
-      }
-    })
-    .catch(error => {
-      console.error('获取消息时出错:', error);
-    });
-}
-
-function clearInput() {
-  document.getElementById("inputText").value = "";
-}
-
     function encryptText(text) {
       var encryptedText = CryptoJS.AES.encrypt(text, encryptionKey).toString();
       return encryptedText;
     }
 
     function decryptText(encryptedText) {
-      var decryptedBytes = CryptoJS.AES.decrypt(encryptedText, encryptionKey);
-      var decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+      var bytes = CryptoJS.AES.decrypt(encryptedText, encryptionKey);
+      var decryptedText = bytes.toString(CryptoJS.enc.Utf8);
       return decryptedText;
     }
 
     function clearInput() {
       document.getElementById("inputText").value = "";
     }
+
+    function sendMessage() {
+      var inputText = document.getElementById("inputText").value;
+      var encryptedText = encryptText(inputText);
+
+      fetch('/send_message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'message': encryptedText })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('消息已发送到服务器');
+          }
+        })
+        .catch(error => {
+          console.error('发送消息时出错:', error);
+        });
+
+      clearInput();
+    }
+
+    function decryptMessages() {
+      fetch('/get_messages')
+        .then(response => response.json())
+        .then(data => {
+          var messages = data.messages;
+          var decryptedMessages = messages.map(decryptText);
+          var chatbox = document.getElementById("chatbox");
+          chatbox.innerHTML = "";
+
+          for (var i = 0; i < decryptedMessages.length; i++) {
+            var message = decryptedMessages[i];
+            var messageElement = document.createElement("p");
+            messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
+            chatbox.appendChild(messageElement);
+          }
+        })
+        .catch(error => {
+          console.error('获取消息时出错:', error);
+        });
+    }
+
+    document.getElementById("decryptButton").addEventListener("click", decryptMessages);
   </script>
 </head>
 <body>
   <div class="container">
-    <h1>加密聊天</h1>
-  
-    <div class="chatbox" id="chatbox">
-
-    </div>
-  
+    <div class="chatbox" id="chatbox"></div>
     <div class="input-container">
-      <input type="text" id="inputText" placeholder="输入要加密的文本">
+      <input type="text" id="inputText" placeholder="输入要发送的消息">
       <button onclick="sendMessage()">发送</button>
+      <button id="decryptButton">解密</button>
     </div>
-  
-    <button onclick="decryptMessages()">解密</button>
   </div>
 </body>
 </html>
