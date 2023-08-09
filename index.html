@@ -58,7 +58,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
   <script>
-    var encryptionKey = "05cbb41656c51dcd7df6b8bb6307bfda";  // 替换为您的加密密钥
+    var encryptionKey = "your_encryption_key";  // 替换为您的加密密钥
 
     function encryptText(text) {
       var encryptedText = CryptoJS.AES.encrypt(text, encryptionKey).toString();
@@ -86,10 +86,11 @@
         },
         body: JSON.stringify({ 'message': encryptedText })
       })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
+        .then(response => {
+          if (response.ok) {
             console.log('消息已发送到服务器');
+          } else {
+            throw new Error('发送消息时出错');
           }
         })
         .catch(error => {
@@ -101,22 +102,24 @@
 
     function decryptMessages() {
       fetch('/get_messages')
-        .then(response => response.text())
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('获取消息时出错');
+          }
+        })
         .then(data => {
-          try {
-            var messages = JSON.parse(data);
-            var decryptedMessages = messages.map(decryptText);
-            var chatbox = document.getElementById("chatbox");
-            chatbox.innerHTML = "";
+          var messages = data.messages;
+          var decryptedMessages = messages.map(decryptText);
+          var chatbox = document.getElementById("chatbox");
+          chatbox.innerHTML = "";
 
-            for (var i = 0; i < decryptedMessages.length; i++) {
-              var message = decryptedMessages[i];
-              var messageElement = document.createElement("p");
-              messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
-              chatbox.appendChild(messageElement);
-            }
-          } catch (error) {
-            console.error('解析JSON时出错:', error);
+          for (var i = 0; i < decryptedMessages.length; i++) {
+            var message = decryptedMessages[i];
+            var messageElement = document.createElement("p");
+            messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
+            chatbox.appendChild(messageElement);
           }
         })
         .catch(error => {
