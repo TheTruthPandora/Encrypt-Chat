@@ -79,7 +79,7 @@
       var inputText = document.getElementById("inputText").value;
       var encryptedText = encryptText(inputText);
 
-fetch('/send_message', {  // 将 'your-server-url' 替换为服务器的实际 URL
+fetch('/api/send_message', {  // 将 'your-server-url' 替换为服务器的实际 URL
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
@@ -101,7 +101,7 @@ fetch('/send_message', {  // 将 'your-server-url' 替换为服务器的实际 U
     }
 
     function decryptMessages() {
-      fetch('/get_messages')
+      fetch('/api/get_messages')
         .then(response => {
           if (response.ok) {
             return response.json();
