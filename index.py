@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
 
 app = Flask(__name__)
+CORS(app)  # 添加CORS中间件
 encryption_key = b'05cbb41656c51dcd7df6b8bb6307bfda'  # 替换为您的加密密钥
 cipher = AES.new(encryption_key, AES.MODE_ECB)
 
