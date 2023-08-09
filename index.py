@@ -1,4 +1,5 @@
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
+import os
 
 app = Flask(__name__)
 encryption_key = "05cbb41656c51dcd7df6b8bb6307bfda"
@@ -14,7 +15,7 @@ def decrypt_text(encrypted_text, key):
 
 @app.route('/')
 def index():
-    return "Welcome to the messaging app!"
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'index.html')
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
