@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <title class="lang" key="Title">NataChat Demo</title>
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css" />
+    <script src="https://fastly.jsdelivr.net/npm/mdui@1.0.1/dist/js/mdui.min.js"></script>
+    <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.js"></script>
+  </head>
+  
+  <body class="mdui-theme-primary-indigo">
+    <div class="mdui-toolbar mdui-color-theme mdui-shadow-4">
+      <span class="mdui-typo-title lang" key="Title">NataChat</span>
+      <div class="mdui-toolbar-spacer">
+      </div>
+      <ul class="mdui-menu" id="langmenu">
+      <li class="mdui-menu-item">
+        <a href="javascript:;"  id="en" class="translate mdui-ripple">English</a>
+      </li>
+      <li class="mdui-menu-item">
+        <a href="javascript:;" id="zh" class="translate mdui-ripple">简体中文</a>
+      </li>
+      <li class="mdui-menu-item">
+        <a href="javascript:;" id="jp" class="translate mdui-ripple">日本語</a>
+      </li>
+    </ul>
+      <button class="mdui-btn mdui-btn-icon " mdui-tooltip="{content: 'Language/语言'}"  mdui-menu="{target: '#langmenu'}">
+        <i class="mdui-icon material-icons" >language</i>
+      </button>
+      <a href="javascript:location.reload();" class="mdui-btn mdui-btn-icon " mdui-tooltip="{content: 'Refresh/刷新'}">
+        <i class="mdui-icon material-icons">refresh</i>
+      </a>
+    </div>
+    <div class="mdui-container pjax-container">
+      <div class="mdui-row">
+        <div class="mdui-col-sm-12 mdui-col-md-12">
+          <div class="mdui-card " style="margin-block: 10px;">
+            <div class="mdui-card-content" >
+                <i class='mdui-icon material-icons'>info_outline</i> <div class="lang" key="NatachatGithub" style="display:inline;">NataChat is a Open Soucre Project on Github.</div>
+                <a class='mdui-ripple mdui-text-color-black-text lang' href='https://github.com/ZGIT-Network/NataChat' target='_blank' key="GoToGithub">Click here to Repository</a>
+            </div>
+          </div>
+         <div class="mdui-panel" mdui-panel>
+          <div class="mdui-panel-item mdui-panel-item-open" style="margin-block: 10px;" >
+            <div class="mdui-panel-item-header"><div class="lang" key="Config" style="display:inline"></div>
+            <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+            </div>
+            <div class="mdui-panel-item-body">
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label lang" key="Server Address"></label>
+                <input class="mdui-textfield-input" id='host' placeholder="Server ip" value="ws://127.0.0.1:8765" />
+                <button class="mdui-btn mdui-shadow-3 mdui-ripple lang" onclick="connect()" id="con" key="Connect to a Natachat Server"></button>
+              </div>
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label lang" key="Username"></label>
+                <input class="mdui-textfield-input" id='username' maxlength="25" placeholder="username">
+              </div>
+            </div>
+          </div>
+        </div>
+          <div class="mdui-card " style="margin-block: 10px;">
+            <div class="mdui-card-primary lang" key="Message"></div>
+            <div class="mdui-card-content">
+              <div style="height:500px; overflow-y:auto;" class="mdui-shadow-0" id="content">
+                <ul class="mdui-list ">
+                  <div id="output" style="margin: 5px;">
+                  </div>
+                </ul>
+              </div>
+              <div class="mdui-textfield">
+                <label class="mdui-textfield-label lang" key="Input"></label>
+                <textarea class="mdui-textfield-input" placeholder="Enter Here..." id="msg" rows="5" maxlength="500" disabled onkeyup="EnterKey()"></textarea>
+              </div>
+              <button onclick="send()" id="send" class="mdui-btn mdui-shadow-3 mdui-ripple" disabled><div class="lang" key="Send" style="display:inline"></div>
+                <i class="mdui-icon material-icons">&#xe163;</i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+<div class="mdui-dialog" id="dialog">
+  <div class="mdui-dialog-title lang" key="Warning" id="dialog-title"></div>
+  <div class="mdui-dialog-content" id="dialog-info"></div>
+  <div class="mdui-dialog-actions">
+    <button class="mdui-btn mdui-ripple lang" key="OK" id="dialog-btn" mdui-dialog-confirm>OK</button>
+  </div>
+</div>
+<script src="https://fastly.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.min.js">
+    </script>
+<script type="text/javascript" src="language.json"></script>
+<script>
+
+//语言库1（前端语言库）Language library 1 (front-end language library)
+
+// The default language is English
+var lang = "en";
+// Check for localStorage support
+if('localStorage' in window){
+   var lang = localStorage.getItem('lang') || navigator.language.slice(0, 2);
+   if (!Object.keys(arrLang).includes(lang)) lang = 'en';
+}
+
+$(document).ready(function() {
+  $(".lang").each(function(index, element) {
+    $(this).text(arrLang[lang][$(this).attr("key")]);
+  });
+});
+
+// get/set the selected language
+$(".translate").click(function() {
+  var lang = $(this).attr("id");
+  window.location.reload();
+  // update localStorage key
+  if('localStorage' in window){
+    localStorage.setItem('lang', lang);
+    console.log( localStorage.getItem('lang') );
+  }
+
+  $(".lang").each(function(index, element) {
+    $(this).text(arrLang[lang][$(this).attr("key")]);
+  });
+});
+
+      </script>
+<script>
+    
+    //语言库2 后端js语言库 Language library 2 backend js language library
+    if (lang == "zh") {
+        var LanguageJson = arrLang.zh;
+    } 
+    if (lang == "en"){
+        var LanguageJson = arrLang.en;
+    }
+    if (lang == "jp"){
+        var LanguageJson = arrLang.jp;
+    }
+</script>
+    <script>
+        var $ = mdui.$;
+        document.getElementById('indexhtml').lang = lang;
+        
+        var inst = new mdui.Dialog('#dialog');
+        var connections = false;
+        var aesKey = randomString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        console.log("AES-KEY: "+aesKey);
+        writeToScreen(LanguageJson.encryptedmessage);
+        window.onload = function autoconnect() {
+        var id = "";
+        id = getCookie('UserID');
+        if (id == ""){
+          id = Math.ceil(Math.random() * 10000) ;
+          setCookie('UserID', id, 365);
+          document.getElementById('username').value = getCookie('Username')+id;
+        }
+        
+        if (username == "") {
+          var uname = document.getElementById('username').value ;
+          document.getElementById('username').value = "guest" + id;
+        };
+        
+        document.getElementById('username').value = getCookie('Username');
+        setTimeout(connect(), 5000);
+        console.log('UID: #'+id);
+
+      };
+      
+      function setCookie(cname,cvalue,exdays){
+            var d = new Date();
+            d.setTime(d.getTime()+(exdays*24*60*60*1000));
+            var expires = "expires="+d.toGMTString();
+            document.cookie = cname+"="+cvalue+"; "+expires;
+        }
+      function getCookie(cname){
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i].trim();
+        if (c.indexOf(name)==0) { return c.substring(name.length,c.length); }
+        }
+            return "";
+        }
+        
+      function EnterKey(event) {
+        event = event || window.event;
+        if (event.keyCode == 13) {
+          send();
+        };
+      };
+
+      function connect() {
+        if (username.value == "") {
+          mdui.snackbar({
+            message: LanguageJson.Pleasesetausername,
+            position: 'right-bottom',
+          });
+        } else {
+          setCookie('Username', document.getElementById('username').value, 30);
+        
+          if (connections == false) {
+              
+            console.log('Connecting...') ;
+            var status1 = 0;
+            //ws = new WebSocket(host.value+':'+ port.value)
+            ws = new WebSocket(host.value + '/user/' + username.value + getCookie('UserID')+'||'+aesKey) ;
+            ws.onopen = function(evt) {
+              console.log(LanguageJson.XSSWARN);
+                
+              mdui.snackbar({
+                message: LanguageJson.ServerConnected,
+                position: 'right-bottom',
+              });
+            };
+            ws.onmessage = function(evt) {
+              writeToScreen(evt.data);
+              document.getElementById('con').innerHTML = LanguageJson.DISCONNECT;
+              document.getElementById('host').disabled = true ;
+              document.getElementById('username').disabled = true ;
+              status1++;
+              document.getElementById('send').disabled = false;
+              // document.getElementById('clear').disabled = false
+              document.getElementById('msg').disabled = false;
+
+              connections = true;
+            };
+            ws.onerror = function() {
+              console.log('%c'+ConnectingFailed, 'color: red') ;
+              mdui.snackbar({
+                message: LanguageJson.CannotConnect,
+                position: 'right-bottom',
+              });
+              document.getElementById('dialog-info').innerHTML = LanguageJson.CannotConnect;
+          document.getElementById('dialog-title').innerHTML = LanguageJson.Warning
+          document.getElementById('dialog-btn').innerHTML = LanguageJson.Iknow
+          inst.open();
+              //writeToScreen("<p style=\'color: #610B0B;\'>Can\'t connect to the server. Is the server IP and port correct? Is the server started?</p>");
+              connections = false;
+            };
+          } else {
+            disconnect();
+          };
+        };
+      };
+      function disconnect() {
+        ws.close()
+
+        ws.onclose = function(evt) {
+          connections = false;
+          // writeToScreen('Disconnected!');
+          mdui.snackbar({
+            message: LanguageJson.DISCONNECT,
+            position: 'right-bottom',
+          });
+          document.getElementById('con').innerHTML = LanguageJson.ConnecttoaNatachatServer;
+          document.getElementById('host').disabled = false ;
+          document.getElementById('username').disabled = false;
+          // document.getElementById('status').style.visibility="hidden"
+          document.getElementById('send').disabled = true;
+          //document.getElementById('clear').disabled = true
+          document.getElementById('msg').disabled = true;
+
+          console.log(Disconnect);
+        };
+      };
+      function send() {
+        message = msg.value;
+        if (ws.readyState === 1) {
+          if (message == '\n' || message == '' || message=='\n\n' || message=='\n\n\n') {
+              document.getElementById('msg').value = "";
+              mdui.snackbar({
+            message: LanguageJson.Cannotsendemptymessagetoserver,
+            position: 'right-bottom',
+          });
+          document.getElementById('dialog-info').innerHTML = LanguageJson.Cannotsendemptymessagetoserver;
+          document.getElementById('dialog-title').innerHTML = LanguageJson.Warning
+          document.getElementById('dialog-btn').innerHTML = LanguageJson.Iknow
+          inst.open();
+            // writeToScreen("<p style='color: #610B0B;'>Cannot send empty message to server!</p>");
+          } else {
+              //加密信息
+            var encrypt = CryptoJS.AES.encrypt(message, CryptoJS.enc.Utf8.parse(aesKey),  // 参数1=密钥, 参数2=加密内容
+              {
+                            mode: CryptoJS.mode.ECB, // 为DES的工作方式
+                            padding: CryptoJS.pad.ZeroPadding  // 当加密后密文长度达不到指定整数倍(8个字节、16个字节)则填充对应字符
+                     }
+                ).toString(); // toString=转字符串类型
+            console.log("Encrypted/已加密："+encrypt); // 控制台打印 
+            ws.send(encrypt);
+            document.getElementById('msg').value = "";
+
+          };
+
+        } else {
+          document.getElementById('con').disabled = false ;
+          document.getElementById('host').disabled = false ;
+          document.getElementById('username').disabled = false;
+          // document.getElementById('status').style.visibility="hidden"
+          document.getElementById('send').disabled = true;
+          // document.getElementById('clo').disabled = true
+          // document.getElementById('clear').disabled = true
+          document.getElementById('msg').disabled = true;
+          document.getElementById('con').innerHTML = LanguageJson.ConnecttoaNatachatServer;
+          // writeToScreen("<p style='color: red;'>Server Connection Lost!</p>");
+          mdui.snackbar({
+            message: LanguageJson.ServerConnectionLost,
+            position: 'right-bottom',
+          });
+          document.getElementById('dialog-info').innerHTML = LanguageJson.Cannotsendemptymessagetoserver;
+          document.getElementById('dialog-title').innerHTML = LanguageJson.Warning;
+          document.getElementById('dialog-btn').innerHTML = LanguageJson.Reload;
+          $('#dialog').on('confirm.mdui.dialog', function () {
+              window.location.reload()
+                console.log('confirm');
+            });
+          inst.open();
+        };
+      };
+      function writeToScreen(message) {
+        var pre = document.createElement("li");
+        pre.setAttribute("class", "mdui-list-item mdui-ripple item-body");
+        mdui.mutation();
+        var msg = message.replace(/<style.*?>|<\/style>/ig, "").replace(/<link.*?>|<\/link>/ig, "").replace(/<script.*?>|<\/script>/ig, "").replace(/onerror=".*?"/ig, "").replace(/onclick=".*?"/ig, "").replace(/onerror=.*?/ig, "").replace(/<iframe.*?/ig, "").replace(/onclick=.*?/ig, "").replace(/<embed.*?/ig, "").replace(/<input.*?/ig, "").replace(/<iframe.*?>|<\/iframe>/ig, "").replace(/<textarea.*?>|<\/textarea>/ig, "").replace(/<meta.*?>|<\/meta>/ig, "").replace(/javascript:*?/ig, "").replace(/onresize*?/ig, "").replace(/onload*?/ig, "").replace(/mouseenter*?/ig, "").replace(/onplay=*?/ig, "").replace(/onplaying*?/ig, "").replace(/oncanplay*?/ig, "").replace(/<video.*?/ig, "").replace(/<canvas.*?/ig, "").replace(/\n/ig, "<br>");
+        
+        pre.innerHTML = msg.replace(/<iframe.*?>|<\/iframe>/ig, "");
+
+        output.appendChild(pre);
+        document.getElementById('content').scrollTop = document.getElementById('content').scrollHeight;
+        console.log(message);
+        console.log('Filtered/已过滤：\n' + msg.replace(/<iframe.*?>|<\/iframe>/ig, ""));
+
+      };
+
+      function clear() {
+        document.getElementById('output').innerHTML = '';
+        var elem = document.getElementById('output');
+        elem.removeChild(elem);
+      };
+      function randomString(length, chars) {
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+    };
+
+        
+
+      </script>
+  </body>
+
+</html>
