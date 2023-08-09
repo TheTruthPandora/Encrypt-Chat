@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>在线加密聊天</title>
+  <style>
+    body {
+      background-image: url('background.jpg');
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .chatbox {
+      overflow-y: scroll;
+      height: 300px;
+      padding: 10px;
+      background-color: #f1f1f1;
+      border-radius: 5px;
+    }
+
+    .chatbox p {
+      margin: 5px 0;
+    }
+
+    .input-container {
+      display: flex;
+      margin-top: 20px;
+    }
+
+    .input-container input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .input-container button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .input-container button:hover {
+      background-color: #45a049;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+  <script>
+    var encryptionKey = "your_encryption_key";  // 替换为您的加密密钥
+
+    function sendMessage() {
+      var inputText = document.getElementById("inputText").value;
+      var encryptedText = encryptText(inputText);
+
+      fetch('/send_message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'message': encryptedText })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('消息已发送到服务器');
+          }
+        })
+        .catch(error => {
+          console.error('发送消息时出错:', error);
+        });
+
+      clearInput();
+    }
+
+    function decryptMessages() {
+      fetch('/get_messages')
+        .then(response => response.json())
+        .then(data => {
+          var messages = data.messages;
+          var decryptedMessages = messages.map(decryptText);
+          var chatbox = document.getElementById("chatbox");
+          chatbox.innerHTML = "";
+
+          for (var i = 0; i < decryptedMessages.length; i++) {
+            var message = decryptedMessages[i];
+            var messageElement = document.createElement("p");
+            messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
+            chatbox.appendChild(messageElement);
+          }
+        })
+        .catch(error => {
+          console.error('获取消息时出错:', error);
+        });
+    }
+
+    function encryptText(text) {
+      var encryptedText = CryptoJS.AES.encrypt(text, encryptionKey).toString();
+      return encryptedText;
+    }
+
+    function decryptText(encryptedText) {
+      var decryptedBytes = CryptoJS.AES.decrypt(encryptedText, encryptionKey);
+      var decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+      return decryptedText;
+    }
+
+    function clearInput() {
+      document.getElementById("inputText").value = "";
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>加密聊天</h1>
+  
+    <div class="chatbox" id="chatbox">
+
+    </div>
+  
+    <div class="input-container">
+      <input type="text" id="inputText" placeholder="输入要加密的文本">
+      <button onclick="sendMessage()">发送</button>
+    </div>
+  
+    <button onclick="decryptMessages()">解密</button>
+  </div>
+</body>
+</html>
