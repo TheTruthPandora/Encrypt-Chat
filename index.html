@@ -68,6 +68,10 @@
   var inputText = document.getElementById("inputText").value;
   var encryptedText = encryptText(inputText);
 
+ function sendMessage() {
+  var inputText = document.getElementById("inputText").value;
+  var encryptedText = encryptText(inputText);
+
   fetch('/send_message', {
     method: 'POST',
     headers: {
@@ -107,6 +111,10 @@ function decryptMessages() {
     .catch(error => {
       console.error('获取消息时出错:', error);
     });
+}
+
+function clearInput() {
+  document.getElementById("inputText").value = "";
 }
 
     function encryptText(text) {
