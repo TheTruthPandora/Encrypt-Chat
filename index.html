@@ -56,90 +56,22 @@
       background-color: #45a049;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-  <script>
-    var encryptionKey = "05cbb41656c51dcd7df6b8bb6307bfda";  // 替换为您的加密密钥
-
-    function encryptText(text) {
-      var encryptedText = CryptoJS.AES.encrypt(text, encryptionKey).toString();
-      return encryptedText;
-    }
-
-    function decryptText(encryptedText) {
-      var bytes = CryptoJS.AES.decrypt(encryptedText, encryptionKey);
-      var decryptedText = bytes.toString(CryptoJS.enc.Utf8);
-      return decryptedText;
-    }
-
-    function clearInput() {
-      document.getElementById("inputText").value = "";
-    }
-
-    function sendMessage() {
-      var inputText = document.getElementById("inputText").value;
-      var encryptedText = encryptText(inputText);
-
-fetch('/api/send_message', {  // 将 'your-server-url' 替换为服务器的实际 URL
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ 'message': encryptedText })
-})
-        .then(response => {
-          if (response.ok) {
-            console.log('消息已发送到服务器');
-          } else {
-            throw new Error('发送消息时出错');
-          }
-        })
-        .catch(error => {
-          console.error('发送消息时出错:', error);
-        });
-
-      clearInput();
-    }
-
-    function decryptMessages() {
-      fetch('/api/get_messages')
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('获取消息时出错');
-          }
-        })
-        .then(data => {
-          var messages = data.messages;
-          var decryptedMessages = messages.map(decryptText);
-          var chatbox = document.getElementById("chatbox");
-          chatbox.innerHTML = "";
-
-          for (var i = 0; i < decryptedMessages.length; i++) {
-            var message = decryptedMessages[i];
-            var messageElement = document.createElement("p");
-            messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
-            chatbox.appendChild(messageElement);
-          }
-        })
-        .catch(error => {
-          console.error('获取消息时出错:', error);
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      document.getElementById("decryptButton").addEventListener("click", decryptMessages);
-    });
-  </script>
 </head>
 <body>
   <div class="container">
+    <h1>加密聊天</h1>
+  
     <div class="chatbox" id="chatbox"></div>
+  
     <div class="input-container">
-      <input type="text" id="inputText" placeholder="输入要发送的消息">
-      <button onclick="sendMessage()">发送</button>
-      <button id="decryptButton">解密</button>
+      <input type="text" id="inputText" placeholder="输入要加密的文本">
+      <button id="sendMessageButton">发送</button>
     </div>
+  
+    <button id="decryptButton">解密</button>
   </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
