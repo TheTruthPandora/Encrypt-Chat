@@ -58,7 +58,7 @@
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
   <script>
-    var encryptionKey = "05cbb41656c51dcd7df6b8bb6307bfda";  // 替换为您的加密密钥
+    var encryptionKey = "your_encryption_key";  // 替换为您的加密密钥
 
     function encryptText(text) {
       var encryptedText = CryptoJS.AES.encrypt(text, encryptionKey).toString();
@@ -101,18 +101,22 @@
 
     function decryptMessages() {
       fetch('/get_messages')
-        .then(response => response.json())
+        .then(response => response.text())
         .then(data => {
-          var messages = data.messages;
-          var decryptedMessages = messages.map(decryptText);
-          var chatbox = document.getElementById("chatbox");
-          chatbox.innerHTML = "";
+          try {
+            var messages = JSON.parse(data);
+            var decryptedMessages = messages.map(decryptText);
+            var chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML = "";
 
-          for (var i = 0; i < decryptedMessages.length; i++) {
-            var message = decryptedMessages[i];
-            var messageElement = document.createElement("p");
-            messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
-            chatbox.appendChild(messageElement);
+            for (var i = 0; i < decryptedMessages.length; i++) {
+              var message = decryptedMessages[i];
+              var messageElement = document.createElement("p");
+              messageElement.innerHTML = '<strong>用户B:</strong> ' + message;
+              chatbox.appendChild(messageElement);
+            }
+          } catch (error) {
+            console.error('解析JSON时出错:', error);
           }
         })
         .catch(error => {
@@ -120,7 +124,9 @@
         });
     }
 
-    document.getElementById("decryptButton").addEventListener("click", decryptMessages);
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("decryptButton").addEventListener("click", decryptMessages);
+    });
   </script>
 </head>
 <body>
