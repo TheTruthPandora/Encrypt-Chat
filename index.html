@@ -56,71 +56,6 @@
       background-color: #45a049;
     }
   </style>
-  <script>
-    // 生成加密密钥
-    var encryptionKey = "your_encryption_key";
-
-    var messages = [];
-
-    function sendMessage() {
-      var inputText = document.getElementById("inputText").value;
-      var encryptedText = encryptText(inputText, encryptionKey);
-
-      // 模拟发送消息到服务器
-      simulateServerSend(encryptedText);
-
-      clearInput();
-    }
-
-    function simulateServerSend(encryptedText) {
-      messages.push(encryptedText);
-
-      var chatbox = document.getElementById("chatbox");
-      var message = '<p><strong>用户A:</strong> ' + encryptedText + '</p>';
-      chatbox.innerHTML += message;
-    }
-
-    function receiveMessage(encryptedText) {
-      var decryptedText = decryptText(encryptedText, encryptionKey);
-
-      var chatbox = document.getElementById("chatbox");
-      var message = '<p><strong>用户B:</strong> ' + decryptedText + '</p>';
-      chatbox.innerHTML += message;
-    }
-
-    function decryptMessages() {
-      var chatbox = document.getElementById("chatbox");
-
-      for (var j = 0; j < chatbox.children.length; j++) {
-        var messageElement = chatbox.children[j];
-        var messageText = messageElement.innerHTML.replace("<strong>用户A:</strong> ", "").replace("<strong>用户B:</strong> ", "");
-
-        if (messageElement.innerHTML.includes("<strong>用户A:</strong> ")) {
-          var decryptedText = decryptText(messageText, encryptionKey);
-          messageElement.innerHTML = '<strong>用户A:</strong> ' + decryptedText;
-        } else {
-          var decryptedText = decryptText(messageText, encryptionKey);
-          messageElement.innerHTML = '<strong>用户B:</strong> ' + decryptedText;
-        }
-      }
-    }
-
-    function encryptText(text, key) {
-      var encryptedText = CryptoJS.AES.encrypt(text, key).toString();
-      return encryptedText;
-    }
-
-    function decryptText(encryptedText, key) {
-      var decryptedBytes = CryptoJS.AES.decrypt(encryptedText, key);
-      var decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
-      return decryptedText;
-    }
-
-    function clearInput() {
-      document.getElementById("inputText").value = "";
-    }
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -137,5 +72,53 @@
   
     <button onclick="decryptMessages()">解密</button>
   </div>
+
+  <script>
+    var chatbox = document.getElementById("chatbox");
+    var encryptionKey = "your_encryption_key";
+
+    function sendMessage() {
+      var inputText = document.getElementById("inputText").value;
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/send_message", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // 成功发送消息后，向聊天框中添加消息
+          var message = '<p><strong>用户A:</strong> ' + inputText + '</p>';
+          chatbox.innerHTML += message;
+          clearInput();
+        }
+      };
+      xhr.send("inputText=" + inputText);
+    }
+
+    function decryptMessages() {
+      var messages = chatbox.getElementsByTagName("p");
+      for (var i = 0; i < messages.length; i++) {
+        var messageElement = messages[i];
+        var messageText = messageElement.innerHTML.replace("<strong>用户A:</strong> ", "").replace("<strong>用户B:</strong> ", "");
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/receive_message", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            // 成功接收消息后，解密并更新聊天框中的消息
+            var decryptedText = xhr.responseText;
+            if (messageElement.innerHTML.includes("<strong>用户A:</strong> ")) {
+              messageElement.innerHTML = '<strong>用户A:</strong> ' + decryptedText;
+            } else {
+              messageElement.innerHTML = '<strong>用户B:</strong> ' + decryptedText;
+            }
+          }
+        };
+        xhr.send("encryptedText=" + messageText);
+      }
+    }
+
+    function clearInput() {
+      document.getElementById("inputText").value = "";
+    }
+  </script>
 </body>
 </html>
