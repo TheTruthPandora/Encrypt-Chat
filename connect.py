@@ -3,7 +3,7 @@ from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
 
 app = Flask(__name__)
-encryption_key = b'0da9055fd6030b855c20786ef5ac6a75'  # 替换为您的加密密钥
+encryption_key = b'05cbb41656c51dcd7df6b8bb6307bfda'  # 替换为您的加密密钥
 cipher = AES.new(encryption_key, AES.MODE_ECB)
 
 messages = []
