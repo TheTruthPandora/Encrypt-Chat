@@ -1,37 +1,16 @@
-from flask import Flask, request, send_from_directory
-import os
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-encryption_key = "05cbb41656c51dcd7df6b8bb6307bfda"
-messages = []
-
-def encrypt_text(text, key):
-    # 在此处实现加密逻辑
-    return encrypted_text
-
-def decrypt_text(encrypted_text, key):
-    # 在此处实现解密逻辑
-    return decrypted_text
+socketio = SocketIO(app)
 
 @app.route('/')
 def index():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'index.html')
+    return render_template('index.html')
 
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    input_text = request.form.get("inputText")
-    encrypted_text = encrypt_text(input_text, encryption_key)
-
-    messages.append(encrypted_text)
-    return "Message sent successfully."
-
-@app.route('/receive_message', methods=['POST'])
-def receive_message():
-    encrypted_text = request.form.get("encryptedText")
-    decrypted_text = decrypt_text(encrypted_text, encryption_key)
-
-    messages.append(encrypted_text)
-    return "Message received successfully."
+@socketio.on('message')
+def handle_message(message):
+    emit('message', message, broadcast=True)
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app)
